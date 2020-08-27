@@ -1,4 +1,5 @@
 library(dplyr)
+library(ggplot2)
 zipF <- "/Users/ruoyingtao/Desktop/R_Files/RepData_PeerAssessment1/activity.zip"
 unzip(zipF)
 
@@ -44,7 +45,22 @@ hist(copy_total_steps$total,
 options(digits = 15)  
 summary(copy_total_steps)
 
+copy <- mutate (copy, weekday = weekdays(as.Date(copy$date)))
+copy$weekday[copy$weekday  %in% c('Saturday','Sunday') ] <- "weekend"
+copy$weekday[copy$weekday != "weekend"] <- "weekday"
+copy$weekday <- as.factor(copy$weekday)
 
+copy_intervals <- group_by(copy, interval, weekday)
+copy_mean_steps <- summarize(copy_intervals, mean = mean(steps, na.rm = TRUE))
+
+qplot(interval, mean, 
+      data = copy_mean_steps, 
+      type = 'l', 
+      geom=c("line"),
+      xlab = "Interval", 
+      ylab = "Number of steps", 
+      main = "") +
+        facet_wrap(~ weekday, ncol = 1)
 
 
 
